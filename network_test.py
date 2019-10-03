@@ -12,7 +12,7 @@ from pandapower.timeseries.run_time_series import run_timeseries
 import os
 from construction_reseau.creation_reseau import creer_reseau, evol_charge, deploiement_EV
 from construction_reseau.elements_evolutifs import def_charge, def_EV, def_EV_QReg, def_prod, prod_regulee
-from exploitation_res.graphiques import plot_graph, plot_pertes, comp_pertes
+from exploitation_res.graphiques import plot_graph, plot_pertes, comp_pertes, plot_soc_noeud, plot_ajout_charge
 from exploitation_res.calculs import calc_pertes, calc_ecart_tension
 from construction_reseau.frequence_reseau import creer_df_freq
 from pandapower.control.controller.storage.ElectricVehicleControl import EVControl
@@ -25,7 +25,7 @@ df_charge = pd.read_csv("scale_timeserie.csv", sep=";", encoding="ISO-8859-1", l
 df_prod = pd.read_csv("prod_scale_timeserie.csv", sep=";", encoding="ISO-8859-1", low_memory = False, index_col= "time")
 df_freq = pd.read_csv("freq_timeserie.csv", sep=";", encoding="ISO-8859-1", low_memory = False, index_col= "time")
 
-evol_charge(net, df_charge, pmax = 5)
+evol_charge(net, df_charge, pmax = 6)
 
 prod_regulee(net, 0, df_prod, 2)
 
@@ -37,6 +37,7 @@ def create_output_writer(net, time_steps, output_dir):
     # these variables are saved to the harddisk after / during the time series loop
     ow.log_variable('res_bus', 'p_mw')
     ow.log_variable('res_bus', 'vm_pu')
+    ow.log_variable('storage','p_mw')
     ow.log_variable('res_line', 'loading_percent')
     ow.log_variable('res_line', 'i_ka')
     ow.log_variable('storage', 'soc_percent')
@@ -89,6 +90,7 @@ net_base = net.deepcopy()
 
 deploiement_EV(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom)
 
+
 ow = create_output_writer(net, time_steps, output_dir=output_dir)
     
 run_timeseries(net, time_steps, output_writer=ow)
@@ -123,10 +125,10 @@ plot_graph(output_dir, "res_bus", "vm_pu.csv", "voltage mag. [p.u.]","Voltage Ma
 df_ev = calc_pertes(output_dir)
 
 
-
+plot_ajout_charge(output_dir, "storage", "p_mw.csv", net.storage)
 
 #load soc
-plot_graph(output_dir, "storage", "soc_percent.csv","State Of Charge [%]", "Batteries SOC")
+#plot_graph(output_dir, "storage", "soc_percent.csv","State Of Charge [%]", "Batteries SOC")
 
 comp_pertes(df_base, df_ev)
 
