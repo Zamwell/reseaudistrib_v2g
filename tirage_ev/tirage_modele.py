@@ -7,8 +7,8 @@ Created on Thu Aug  8 11:51:41 2019
 
 import numpy as np
 import matplotlib.pyplot as plt
-from modelisation_ev.electric_vehicle import Personne
-from modelisation_ev.tirer_jour import presence_jour
+from tirage_ev.electric_vehicle import Personne
+from tirage_ev.tirer_jour import presence_jour
 
 def creer_flotte(dic_param_trajets,profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom, nb_ev):
     pers=[]
@@ -29,8 +29,8 @@ def creer_flotte(dic_param_trajets,profil_mob, dic_nblois, dic_tranchlois, dic_p
     return pers, test
     
 def init_personne(dic_param_trajets,profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom):
-    journee_ok = False
-    while not(journee_ok):
+    journee_vide = True
+    while journee_vide:
         typ = profil_mob.sample()
         if 'travail' in typ:
             dist = dic_param_trajets[typ]['travmat'][0].sample()
@@ -38,7 +38,7 @@ def init_personne(dic_param_trajets,profil_mob, dic_nblois, dic_tranchlois, dic_
             dist = -1
         per = Personne(typ,dist)
         li = per.tirer_mobilite_jour_semaine(dic_param_trajets,profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom)
-        journee_ok = li != None
+        journee_vide = (li == [])
     return per
 
 def graphe_presence_flotte(test):    

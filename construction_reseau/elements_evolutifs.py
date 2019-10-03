@@ -11,6 +11,7 @@ from pandapower.control import ConstControl
 from pandapower.control.controller.storage.ElectricVehicleControl import EVControl
 from pandapower.control.controller.storage.ElectricVehicleQRegControl import EVQRegControl
 from pandapower.control.controller.prod.ProdQRegulatedControl import ProdQRegulatedControl
+from pandapower.control.controller.storage.ElectricVehicleBasicControl import EVBasicControl
 
 def def_charge(net, index, df_scale, Pmax):
     df = pd.DataFrame()
@@ -24,6 +25,12 @@ def def_EV(net, bus, df, efficiency = 1):
     ds = pt.DFData(df)
     EVControl(net, gid = ev, data_source=ds, efficiency = efficiency)
     return net
+
+def def_EV_base(net, bus, df, pers):
+    ev = pp.create_storage(net, bus, p_mw = 0, max_e_mwh = pers.cap_bat, name= "ev bus"+str(bus), soc_percent=0.5)
+    ds = pt.DFData(df)
+    EVBasicControl(net, gid = ev, data_source = ds, efficiency = pers.efficiency)
+    
 
 def def_EV_QReg(net, bus, df, efficiency = 1):
     ev = pp.create_storage(net, bus, p_mw = 0, max_e_mwh = 0.5, name = "ev bus"+str(bus), soc_percent=0.5)

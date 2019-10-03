@@ -10,7 +10,7 @@ import pandapower.control as pc
 from pandapower.timeseries import OutputWriter
 from pandapower.timeseries.run_time_series import run_timeseries
 import os
-from construction_reseau.creation_reseau import creer_reseau, evol_charge
+from construction_reseau.creation_reseau import creer_reseau, evol_charge, deploiement_EV
 from construction_reseau.elements_evolutifs import def_charge, def_EV, def_EV_QReg, def_prod, prod_regulee
 from exploitation_res.graphiques import plot_graph, plot_pertes, comp_pertes
 from exploitation_res.calculs import calc_pertes, calc_ecart_tension
@@ -25,7 +25,7 @@ df_charge = pd.read_csv("scale_timeserie.csv", sep=";", encoding="ISO-8859-1", l
 df_prod = pd.read_csv("prod_scale_timeserie.csv", sep=";", encoding="ISO-8859-1", low_memory = False, index_col= "time")
 df_freq = pd.read_csv("freq_timeserie.csv", sep=";", encoding="ISO-8859-1", low_memory = False, index_col= "time")
 
-evol_charge(net, df_charge, pmax = 6)
+evol_charge(net, df_charge, pmax = 5)
 
 prod_regulee(net, 0, df_prod, 2)
 
@@ -78,46 +78,57 @@ df_frequence = creer_df_freq(df_freq)
 evs = []
 net_base = net.deepcopy()
 
-for per in flotte:
-    if len(evs)>4:
-        break
-    if per.journee.li_traj != []:
-        evs.append(pd.concat([per.creer_df(),df_frequence], axis = 1))
+#for per in flotte:
+#    if len(evs)>4:
+#        break
+#    if per.journee.li_traj != []:
+#        evs.append(pd.concat([per.creer_df(),df_frequence], axis = 1))
+#
+#for j in range(len(evs)):
+#    def_EV(net,j+8,evs[j], efficiency = 0.9)
 
-for j in range(len(evs)):
-    def_EV(net,j+8,evs[j], efficiency = 0.9)
-    
+deploiement_EV(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom)
+
 ow = create_output_writer(net, time_steps, output_dir=output_dir)
     
 run_timeseries(net, time_steps, output_writer=ow)
 
 ecart_ev = calc_ecart_tension(output_dir, drop = [0,1,2,3])
 print(ecart_ev)
-for i in range(len(evs)):
-    net.storage = net.storage.iloc[0:0]
-    mask_control = net.controller.controller.apply(lambda x : str(x))
-    net.controller = net.controller[~ ( (mask_control.values == "EVControl") | (mask_control.values == "EVQRegControl"))].copy()
-    for j in range(len(evs)-1):
-        def_EV(net,(j+i+1)%5+8,evs[(j+i+1) % 5], efficiency = 0.9)
-    def_EV_QReg(net, i+8, evs[i], efficiency = 0.9)
-        
-    ow = create_output_writer(net, time_steps, output_dir=output_dir)
-    
-    run_timeseries(net, time_steps, output_writer=ow)
-    
-    ecart_encours = calc_ecart_tension(output_dir, drop = [0,1,2,3])
-    print(ecart_encours)
-    if ecart_encours < ecart_ev:
-        conf_opti = i
-        ecart_ev = ecart_encours
-    plot_graph(output_dir, "res_bus", "vm_pu.csv", "voltage mag. [p.u.]","Voltage Magnitude")
-    
+
+
+
+#for i in range(len(evs)):
+#    net.storage = net.storage.iloc[0:0]
+#    mask_control = net.controller.controller.apply(lambda x : str(x))
+#    net.controller = net.controller[~ ( (mask_control.values == "EVControl") | (mask_control.values == "EVQRegControl"))].copy()
+#    for j in range(len(evs)-1):
+#        def_EV(net,(j+i+1)%5+8,evs[(j+i+1) % 5], efficiency = 0.9)
+#    def_EV_QReg(net, i+8, evs[i], efficiency = 0.9)
+#        
+#    ow = create_output_writer(net, time_steps, output_dir=output_dir)
+#    
+#    run_timeseries(net, time_steps, output_writer=ow)
+#    
+#    ecart_encours = calc_ecart_tension(output_dir, drop = [0,1,2,3])
+#    print(ecart_encours)
+#    if ecart_encours < ecart_ev:
+#        conf_opti = i
+#        ecart_ev = ecart_encours
+
+
+plot_graph(output_dir, "res_bus", "vm_pu.csv", "voltage mag. [p.u.]","Voltage Magnitude")
+
+
 df_ev = calc_pertes(output_dir)
+
+
+
 
 #load soc
 plot_graph(output_dir, "storage", "soc_percent.csv","State Of Charge [%]", "Batteries SOC")
 
 comp_pertes(df_base, df_ev)
 
-print(ecart_ev)
-print(conf_opti)
+#print(ecart_ev)
+#print(conf_opti)

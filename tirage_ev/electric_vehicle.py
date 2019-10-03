@@ -6,8 +6,7 @@ Created on Fri Sep 27 16:00:15 2019
 """
 import pandas as pd
 import numpy as np
-from modelisation_ev.utilitaire import flatten, trouv_break
-#from modelisation_ev.tirer_jour import tirer_trajet
+from modelisation_ev.utilitaire import trouv_break
 
 class Trajet:
     def __init__(self, dic_modele, dist = -1, mot = ""):
@@ -106,10 +105,11 @@ class Personne:
     def __init__(self, typ_jour_semaine, dist_trav = -1):
         self.type_jour_semaine = typ_jour_semaine
         self.dist_trav = dist_trav
-        self.cap_bat = 0.50 #MWh
-        self.nrj_km = 0.005 #MWh par km
+        self.cap_bat = 0.050 #MWh
+        self.nrj_km = 0.0002 #MWh par km
         self.journee = []
-        self.puis_rech = 0.1 #MW
+        self.puis_rech = 0.01 #MW
+        self.efficiency = 0.9
     
     def tirer_mobilite_jour_semaine(self, dic_param_trajets,profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom):
         if np.random.rand()>0.85:
@@ -117,7 +117,8 @@ class Personne:
         else:
             typ = self.type_jour_semaine
         self.journee = Journee(typ, dic_param_trajets,profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom,self.dist_trav)
-
+        return self.journee
+    
     def creer_df(self):
         """
         Crée une dataframe avec l'endroit où la voiture se trouve + l'état de charge du véhicule (HORS RECHARGE)
@@ -157,10 +158,10 @@ class Personne:
                     if j < 96:
                         nrj_jour[j] = self.nrj_km * traj.dist / (np.round(traj.duree/15)+1)
                     else:
-                        print("A corriger")
-                        
-        df['emplacement'] = pres_jour
-        df['nrj_utilisee'] = nrj_jour
+                        print("A corriger")       
+        df['emplacement'] = pres_jour[:96]
+        df['nrj_utilisee'] = nrj_jour[:96]
+        
         df['socmin'] = self.def_socmin(pres_jour,nrj_jour)
         return df
     
@@ -178,13 +179,13 @@ class Personne:
             soc_dep += sum(nrj_jour[tdep:tsuiv+1])/self.cap_bat
             temps_charge += (tdep + 1 - tprec)
             for i in range(tprec,tdep+1):
-                socmin[i] = max(0.2, 1.1*soc_dep - (tdep - i)*self.puis_rech*0.9/(4*self.cap_bat))
+                socmin[i] = max(0.2, 1.1*soc_dep - (tdep - i)*self.puis_rech*self.efficiency/(4*self.cap_bat))
             tprec = tsuiv
         nrj_tot = sum(nrj_jour) / self.cap_bat
         j = 0
         for x in pres_jour[:tprec+1]:
             if x == 0:
-                socmin[j] = max(socmin[j], 1.1*nrj_tot - (temps_charge - j)*self.puis_rech*0.9/(self.cap_bat*4))
+                socmin[j] = max(socmin[j], 1.1*nrj_tot - (temps_charge - j)*self.puis_rech*self.efficiency/(self.cap_bat*4))
                 j += 1
         for i in range(tprec, len(socmin)):
             socmin[i] = 0.5

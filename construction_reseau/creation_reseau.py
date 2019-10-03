@@ -6,8 +6,9 @@ Created on Wed Sep 25 13:11:42 2019
 """
 
 import pandapower as pp
-from construction_reseau.elements_evolutifs import def_charge, def_EV
+from construction_reseau.elements_evolutifs import def_charge, def_EV, def_EV_base
 from numpy.random import rand
+from tirage_ev.tirage_modele import init_personne
 
 def creer_reseau():
     net = pp.create_empty_network()
@@ -61,11 +62,17 @@ def evol_charge(net, df, pmax):
     for i in range(9):
         def_charge(net,i, df, pmax)
         
-def deploiement_EV(net, flotte, taux_penet = 0.50, p_evse_mw = 0.01):
+def deploiement_EV(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom, taux_penet = 0.30, p_evse_mw = 0.01):
+    nb_ev_fin = 0
     for x in net.load.itertuples():
         bus = x[2]
         p_noeud = x[3]
-        nb_ev_max = int(p_noeud / p_evse_mw)
+        nb_ev_max = int(p_noeud / 0.02)
         for i in range(nb_ev_max):
             if rand() <= taux_penet:
+                per = init_personne(dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom)
+                def_EV_base(net, bus, per.creer_df(), per)
+                nb_ev_fin += 1
+    print(nb_ev_fin)
+                
                 
