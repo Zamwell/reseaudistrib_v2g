@@ -20,10 +20,10 @@ def def_charge(net, index, df_scale, Pmax):
     ConstControl(net, element="load", variable = 'p_mw', element_index = index, data_source = ds, set_q_from_cosphi = False, profile_name="charge")
     return net
 
-def def_EV(net, bus, df, efficiency = 1):
-    ev = pp.create_storage(net, bus, p_mw = 0, max_e_mwh = 0.5, name = "ev bus"+str(bus), soc_percent=0.5)
+def def_EV(net, bus, df, pers):
+    ev = pp.create_storage(net, bus, p_mw = 0, max_e_mwh =pers.cap_bat, name = "ev bus"+str(bus), soc_percent=0.5)
     ds = pt.DFData(df)
-    EVControl(net, gid = ev, data_source=ds, efficiency = efficiency)
+    EVControl(net, gid = ev, data_source=ds, efficiency = pers.efficiency)
     return net
 
 def def_EV_base(net, bus, df, pers):

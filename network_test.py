@@ -10,7 +10,7 @@ import pandapower.control as pc
 from pandapower.timeseries import OutputWriter
 from pandapower.timeseries.run_time_series import run_timeseries
 import os
-from construction_reseau.creation_reseau import creer_reseau, evol_charge, deploiement_EV
+from construction_reseau.creation_reseau import creer_reseau, evol_charge, deploiement_EV, deploiement_EV_freqreg
 from construction_reseau.elements_evolutifs import def_charge, def_EV, def_EV_QReg, def_prod, prod_regulee
 from exploitation_res.graphiques import plot_graph, plot_pertes, comp_pertes, plot_soc_noeud, plot_ajout_charge
 from exploitation_res.calculs import calc_pertes, calc_ecart_tension
@@ -88,7 +88,7 @@ net_base = net.deepcopy()
 #for j in range(len(evs)):
 #    def_EV(net,j+8,evs[j], efficiency = 0.9)
 
-deploiement_EV(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom)
+deploiement_EV_freqreg(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom, df_frequence)
 
 
 ow = create_output_writer(net, time_steps, output_dir=output_dir)
