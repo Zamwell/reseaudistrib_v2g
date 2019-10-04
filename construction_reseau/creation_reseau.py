@@ -64,12 +64,18 @@ def evol_charge(net, df, pmax):
     for i in range(9):
         def_charge(net,i, df, pmax)
 
-def deploiement_EV(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom, taux_penet = 0.30, p_evse_mw = 0.01):
+def deploiement_EV(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom, taux_penet = 0.30, p_evse_mw = 0.01, k_flotte = False):
     try:
+        if  k_flotte == True:
+            raise UserWarning("")
         net_flotte = pp.from_pickle(os.path.join("construction_reseau","data","flotte.p"))
-        net.storage = net_flotte.storage.deepcopy()
-        net.controller = pd.concat([net.controller, net_flotte.controller[net_flotte.controller.str.contains('EV')]], ignore_index = True)
+        net.storage = net_flotte.storage.copy()
+        for control in net_flotte.controller.iterrows():
+            control[1].controller.net = net
+        net_flotte.controller['name'] = net_flotte.controller.controller.apply(lambda x : str(x))
+        net.controller = pd.concat([net.controller, net_flotte.controller[net_flotte.controller.name.str.contains('EV')].drop(['name'],axis=1)], ignore_index = True)
     except UserWarning:
+        print("Calcul de la flotte...")
         nb_ev_fin = 0
         for x in net.load.itertuples():
             bus = x[2]
@@ -83,15 +89,28 @@ def deploiement_EV(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois
         pp.to_pickle(net,os.path.join("construction_reseau","data","flotte.p"))
         print(nb_ev_fin)
 
-def deploiement_EV_freqreg(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom, df_freq, taux_penet = 0.30, p_evse_mw = 0.01):
-    nb_ev_fin = 0
-    for x in net.load.itertuples():
-        bus = x[2]
-        p_noeud = x[3]
-        nb_ev_max = int(p_noeud / 0.02)
-        for i in range(nb_ev_max):
-            if rand() <= taux_penet:
-                per = init_personne(dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom)
-                def_EV(net, bus, pd.concat([per.creer_df(), df_freq],axis = 1), per)
-                nb_ev_fin += 1
-    print(nb_ev_fin)
+def deploiement_EV_freqreg(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom, df_freq, taux_penet = 0.30, p_evse_mw = 0.01, k_flotte = False):
+    try:
+        if  k_flotte == True:
+            raise UserWarning("")
+        net_flotte = pp.from_pickle(os.path.join("construction_reseau","data","flotte.p"))
+        net.storage = net_flotte.storage.copy()
+        for control in net_flotte.controller.iterrows():
+            control[1].controller.net = net
+        net_flotte.controller['name'] = net_flotte.controller.controller.apply(lambda x : str(x))
+        net.controller = pd.concat([net.controller, net_flotte.controller[net_flotte.controller.name.str.contains('EV')].drop(['name'],axis=1)], ignore_index = True)
+    except UserWarning:
+        print("Calcul de la flotte...")
+        nb_ev_fin = 0
+        for x in net.load.itertuples():
+            bus = x[2]
+            p_noeud = x[3]
+            nb_ev_max = int(p_noeud / 0.02)
+            for i in range(nb_ev_max):
+                if rand() <= taux_penet:
+                    per = init_personne(dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom)
+                    def_EV(net, bus, pd.concat([per.creer_df(), df_freq],axis = 1), per)
+                    nb_ev_fin += 1
+        pp.to_pickle(net,os.path.join("construction_reseau","data","flotte.p"))
+        print(nb_ev_fin)
+        

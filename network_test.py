@@ -101,7 +101,7 @@ net_base = net.deepcopy()
 #for j in range(len(evs)):
 #    def_EV(net,j+8,evs[j], efficiency = 0.9)
 
-deploiement_EV_freqreg(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom, df_frequence)
+deploiement_EV(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom)
 
 
 ow = create_output_writer(net, time_steps, output_dir=output_dir)
