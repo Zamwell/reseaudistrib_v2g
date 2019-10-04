@@ -2,9 +2,9 @@
  
 
 Requiert :
-pomegranate
-pandas
-la version de pandapower forkée sur mon repo
+- pomegranate
+- pandas
+- la version de pandapower forkée sur mon repo
 
 Pour lancer la simu des familles :
 - lancer preparation_donnee
