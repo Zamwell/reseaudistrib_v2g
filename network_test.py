@@ -55,6 +55,18 @@ if not os.path.exists(output_dir):
 
 read_data_file = os.path.join("", "data_mod", "var.pkl")
 
+with open(read_data_file, 'rb') as f:
+    dic_var = pickle.load(f)
+
+profil_mob = dic_var["profil_mob"]
+dic_param_trajets = dic_var["dic_param_trajets"]
+dic_nblois = dic_var["dic_nblois"]
+dic_tranchlois = dic_var["dic_tranchlois"]
+dic_parklois = dic_var["dic_parklois"]
+dic_dureelois = dic_var["dic_dureelois"]
+dic_retourdom = dic_var["dic_retourdom"]
+
+
 ow = create_output_writer(net, time_steps, output_dir=output_dir)
  
  # 5. the main time series function
