@@ -17,7 +17,7 @@ from exploitation_res.calculs import calc_pertes, calc_ecart_tension
 from construction_reseau.frequence_reseau import creer_df_freq
 from pandapower.control.controller.storage.ElectricVehicleControl import EVControl
 from pandapower.control.controller.storage.ElectricVehicleQRegControl import EVQRegControl
-
+import pickle
 
 net = creer_reseau()
 
@@ -53,6 +53,7 @@ output_dir = os.path.join("", "res_timeseries")
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
 
+read_data_file = os.path.join("", "data_mod", "var.pkl")
 
 ow = create_output_writer(net, time_steps, output_dir=output_dir)
  

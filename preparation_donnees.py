@@ -23,7 +23,7 @@ dic = {"dic_param_trajets" : dic_param_trajets, "profil_mob" : profil_mob, "dic_
        "dic_parklois" : dic_parklois, "dic_dureelois" : dic_dureelois, "dic_retourdom" : dic_retourdom}
 
 
-with open("\\data_mod\\var.pkl", "wb") as f:
+with open("data_mod\\var.pkl", "wb") as f:
     f.write(pickle.dumps(dic))
 
 #config.dic_param_trajets = dic_param_trajets
