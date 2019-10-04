@@ -12,6 +12,7 @@ la version de pandapower forkée sur mon repo
 sudo pip install -r requirements.txt
 git clone git@github.com:Zamwell/pandapower.git
 cd pandapower
+git checkout add-controllers
 sudo python setup.py install
 cd ..
 ```
