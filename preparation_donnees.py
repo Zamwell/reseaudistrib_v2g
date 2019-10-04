@@ -19,6 +19,10 @@ dic_param_trajets,profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dure
 
 
 
+with open(os.path.join("data_mod","var.pkl"), "wb") as f:
+    f.write(pickle.dumps(dic))
+
+
 #config.dic_param_trajets = dic_param_trajets
 #config.profil_mob = profil_mob
 #config.dic_nblois = dic_nblois
