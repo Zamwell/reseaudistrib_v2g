@@ -4,7 +4,7 @@
 Requiert :
 pomegranate
 pandas
-la version de pandapower forkée sur mon repo
+la version de pandapower forkÃ©e sur mon repo
 
 ## Installation
 
@@ -12,6 +12,7 @@ la version de pandapower forkée sur mon repo
 sudo pip install -r requirements.txt
 git clone git@github.com:Zamwell/pandapower.git
 cd pandapower
+git checkout add-controllers
 sudo python setup.py install
 cd ..
 ```
