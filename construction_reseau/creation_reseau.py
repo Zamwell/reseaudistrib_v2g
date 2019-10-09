@@ -6,7 +6,7 @@ Created on Wed Sep 25 13:11:42 2019
 """
 
 import pandapower as pp
-from construction_reseau.elements_evolutifs import def_charge, def_EV, def_EV_base
+from construction_reseau.elements_evolutifs import def_charge, def_EV,def_EV_QReg, def_EV_base
 from numpy.random import rand
 from tirage_ev.tirage_modele import init_personne
 import os
@@ -31,7 +31,7 @@ def creer_reseau():
 
     pp.create_ext_grid(net, bus1, vm_pu = 1, va_degree = 50)
 
-    trafo1 = pp.create_transformer(net, bus2, bus3, name="HTB/HTA transfo", std_type="63 MVA 110/20 kV")
+    trafo1 = pp.create_transformer(net, bus2, bus3, name="HTB/HTA transfo", std_type="40 MVA 110/20 kV")
 
     line1 = pp.create_line(net, bus4, bus5, length_km=1, std_type="NAYY 4x150 SE",  name="Line 1")
     line2 = pp.create_line(net, bus5, bus6, length_km=1, std_type="NAYY 4x150 SE",  name="Line 2")
@@ -56,7 +56,7 @@ def creer_reseau():
     pp.create_load(net, bus12, p_mw=3, q_mvar=0.5, scaling=1, name="load8")
     pp.create_load(net, bus13, p_mw=3, q_mvar=0.5, scaling=1, name="load9")
 
-    pp.create_sgen(net, bus7, p_mw=2, q_mvar=-0.5, name="static generator")
+    pp.create_sgen(net, bus7, p_mw=2, q_mvar=-0.5, name="static generator", type="wind")
 
     return net
 
@@ -109,7 +109,10 @@ def deploiement_EV_freqreg(net,dic_param_trajets, profil_mob, dic_nblois, dic_tr
             for i in range(nb_ev_max):
                 if rand() <= taux_penet:
                     per = init_personne(dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom)
-                    def_EV(net, bus, pd.concat([per.creer_df(), df_freq],axis = 1), per)
+                    if rand() <= 0.2:
+                        def_EV_QReg(net, bus, per.creer_df(), per)
+                    else:
+                         def_EV(net, bus, pd.concat([per.creer_df(), df_freq],axis = 1), per)
                     nb_ev_fin += 1
         pp.to_pickle(net,os.path.join("construction_reseau","data","flotte.p"))
         print(nb_ev_fin)

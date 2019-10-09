@@ -105,3 +105,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 construction_reseau/data/flotte.p
+construction_reseau/data/flotte.p

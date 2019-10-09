@@ -32,10 +32,10 @@ def def_EV_base(net, bus, df, pers):
     EVBasicControl(net, gid = ev, data_source = ds, efficiency = pers.efficiency)
     
 
-def def_EV_QReg(net, bus, df, efficiency = 1):
-    ev = pp.create_storage(net, bus, p_mw = 0, max_e_mwh = 0.5, name = "ev bus"+str(bus), soc_percent=0.5)
+def def_EV_QReg(net, bus, df, pers):
+    ev = pp.create_storage(net, bus, p_mw = 0, max_e_mwh = pers.cap_bat, name = "ev bus"+str(bus), soc_percent=0.5)
     ds = pt.DFData(df)
-    EVQRegControl(net, gid = ev, data_source=ds, efficiency = efficiency)
+    EVQRegControl(net, gid = ev, data_source=ds, efficiency = pers.efficiency)
 
 
 def def_prod(net, index, df_scale, Pmax):

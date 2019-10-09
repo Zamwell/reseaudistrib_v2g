@@ -25,12 +25,13 @@ df_charge = pd.read_csv("scale_timeserie.csv", sep=";", encoding="ISO-8859-1", l
 df_prod = pd.read_csv("prod_scale_timeserie.csv", sep=";", encoding="ISO-8859-1", low_memory = False, index_col= "time")
 df_freq = pd.read_csv("freq_timeserie.csv", sep=";", encoding="ISO-8859-1", low_memory = False, index_col= "time")
 
-evol_charge(net, df_charge, pmax = 6)
+evol_charge(net, df_charge, pmax = 3)
 
 prod_regulee(net, 0, df_prod, 2)
 
 net.trafo.tap_step_percent = 0.625
-cont = pc.controller.trafo.DiscreteTapControl.DiscreteTapControl(net, 0, 0.995, 1.05)
+net.trafo.tap_pos = -5
+#cont = pc.controller.trafo.DiscreteTapControl.DiscreteTapControl(net, 0, 0.995, 1.05)
 
 def create_output_writer(net, time_steps, output_dir):
     ow = OutputWriter(net, time_steps, output_path=output_dir, output_file_type=".csv")
@@ -101,7 +102,7 @@ net_base = net.deepcopy()
 #for j in range(len(evs)):
 #    def_EV(net,j+8,evs[j], efficiency = 0.9)
 
-deploiement_EV(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom)
+deploiement_EV_freqreg(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom, df_frequence)
 
 
 ow = create_output_writer(net, time_steps, output_dir=output_dir)
