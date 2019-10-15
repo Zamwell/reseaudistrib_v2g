@@ -119,6 +119,12 @@ class Personne:
         self.journee = Journee(typ, dic_param_trajets,profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom,self.dist_trav)
         return self.journee
     
+    def gpark(self):
+        for traj in self.journee:
+            if 'gpark' in traj.motif:
+                return 1
+        return 0
+    
     def creer_df(self):
         """
         Crée une dataframe avec l'endroit où la voiture se trouve + l'état de charge du véhicule (HORS RECHARGE)
@@ -170,12 +176,23 @@ class Personne:
         tprec=0
         soc_dep = 0
         temps_charge = 0
-        while trouv_break(pres_jour, tprec, 0) != None:
-            tdep = trouv_break(pres_jour, tprec, 0)
+        emplac_rech = 0
+        while trouv_break(pres_jour, tprec, emplac_rech) != None:
+            tdep = trouv_break(pres_jour, tprec, emplac_rech)
             try:
                 tsuiv = pres_jour.index(0,tdep + 1)
+                try:
+                    tsuiv_gp = pres_jour.index(2,tdep + 1)
+                except:
+                    tsuiv_gp = 95
+                if tsuiv_gp < tsuiv:
+                    tsuiv = tsuiv_gp
+                    emplac_rech = 2
+                else:
+                    emplac_rech = 0
             except:
                 tsuiv = 95
+                emplac_rech = 0
             soc_dep += sum(nrj_jour[tdep:tsuiv+1])/self.cap_bat
             temps_charge += (tdep + 1 - tprec)
             for i in range(tprec,tdep+1):

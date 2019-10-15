@@ -44,6 +44,7 @@ def create_output_writer(net, time_steps, output_dir):
     ow.log_variable('res_line', 'i_ka')
     ow.log_variable('storage', 'soc_percent')
     ow.log_variable('storage', 'in_service')
+    ow.log_variable('storage', 'bus')
     ow.log_variable('res_line', 'pl_mw')
     ow.log_variable('res_sgen', 'q_mvar')
     return ow

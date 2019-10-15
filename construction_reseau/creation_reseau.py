@@ -79,7 +79,11 @@ def deploiement_EV(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois
         nb_ev_fin = 0
         for x in net.load.itertuples():
             bus = x[2]
-            p_noeud = x[3]
+            if  bus == 10:
+                #On met un centre commercial au noeud 10, donc la puissance résidentielle est réduite
+                p_noeud = x[3] - 1.5 
+            else:
+                p_noeud = x[3]
             nb_ev_max = int(p_noeud / 0.02)
             for i in range(nb_ev_max):
                 if rand() <= taux_penet:
@@ -102,9 +106,14 @@ def deploiement_EV_freqreg(net,dic_param_trajets, profil_mob, dic_nblois, dic_tr
     except UserWarning:
         print("Calcul de la flotte...")
         nb_ev_fin = 0
+        nb_gpark = 0
         for x in net.load.itertuples():
             bus = x[2]
-            p_noeud = x[3]
+            if  bus == 10:
+                #On met un centre commercial au noeud 10, donc la puissance résidentielle est réduite
+                p_noeud = x[3] - 1.5 
+            else:
+                p_noeud = x[3]
             nb_ev_max = int(p_noeud / 0.02)
             for i in range(nb_ev_max):
                 if rand() <= taux_penet:
@@ -113,7 +122,9 @@ def deploiement_EV_freqreg(net,dic_param_trajets, profil_mob, dic_nblois, dic_tr
                         def_EV_QReg(net, bus, per.creer_df(), per)
                     else:
                          def_EV(net, bus, pd.concat([per.creer_df(), df_freq],axis = 1), per)
+                    nb_gpark += per.gpark()
                     nb_ev_fin += 1
         pp.to_pickle(net,os.path.join("construction_reseau","data","flotte.p"))
+        print(nb_gpark)
         print(nb_ev_fin)
         
