@@ -38,9 +38,9 @@ def def_EV_QReg(net, bus, df, pers):
     EVQRegControl(net, gid = ev, data_source=ds, efficiency = pers.efficiency)
 
 
-def def_prod(net, index, df_scale, Pmax):
+def def_prod(net, index, df_scale, pmax):
     df = pd.DataFrame()
-    df['prod'] = df_scale['scale'].values * Pmax
+    df['prod'] = df_scale['scale'].values * pmax
     ds = pt.DFData(df)
     ConstControl(net, element="sgen", variable = 'p_mw', element_index = index, data_source = ds, profile_name="prod")
     

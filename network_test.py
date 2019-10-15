@@ -10,10 +10,11 @@ import pandapower.control as pc
 from pandapower.timeseries import OutputWriter
 from pandapower.timeseries.run_time_series import run_timeseries
 import os
+import numpy as np
 from construction_reseau.creation_reseau import creer_reseau, evol_charge, deploiement_EV, deploiement_EV_freqreg
 from construction_reseau.elements_evolutifs import def_charge, def_EV, def_EV_QReg, def_prod, prod_regulee
-from exploitation_res.graphiques import plot_graph, plot_pertes, comp_pertes, plot_soc_noeud, plot_ajout_charge
-from exploitation_res.calculs import calc_pertes, calc_ecart_tension
+import exploitation_res.graphiques as exploit_graph
+from exploitation_res.calculs import calc_pertes, calc_ecart_tension, calc_batterie_eq
 from construction_reseau.frequence_reseau import creer_df_freq
 from pandapower.control.controller.storage.ElectricVehicleControl import EVControl
 from pandapower.control.controller.storage.ElectricVehicleQRegControl import EVQRegControl
@@ -42,6 +43,7 @@ def create_output_writer(net, time_steps, output_dir):
     ow.log_variable('res_line', 'loading_percent')
     ow.log_variable('res_line', 'i_ka')
     ow.log_variable('storage', 'soc_percent')
+    ow.log_variable('storage', 'in_service')
     ow.log_variable('res_line', 'pl_mw')
     ow.log_variable('res_sgen', 'q_mvar')
     return ow
@@ -80,12 +82,12 @@ ecart_base = calc_ecart_tension(output_dir, drop = [0,1,2,3])
  #plot_graph(output_dir, "res_line", "loading_percent.xls", "line loading [%]","Line Loading")
  
  # load results
-plot_graph(output_dir, "res_bus", "p_mw.csv","P [MW]", "Bus Loads", drop = [0,1,2,3,4,5] )
+exploit_graph.plot_graph(output_dir, "res_bus", "p_mw.csv","P [MW]", "Bus Loads", drop = [0,1,2,3,4,5] )
 
  # voltage results
-plot_graph(output_dir, "res_bus", "vm_pu.csv", "voltage mag. [p.u.]","Voltage Magnitude")
+exploit_graph.plot_graph(output_dir, "res_bus", "vm_pu.csv", "voltage mag. [p.u.]","Voltage Magnitude")
 
-plot_graph(output_dir, "res_sgen","q_mvar.csv", "Q [MVAr]", "Prod Reactive Power")
+exploit_graph.plot_graph(output_dir, "res_sgen","q_mvar.csv", "Q [MVAr]", "Prod Reactive Power")
  
 df_base = calc_pertes(output_dir)
  
@@ -133,18 +135,21 @@ print(ecart_ev)
 #        ecart_ev = ecart_encours
 
 
-plot_graph(output_dir, "res_bus", "vm_pu.csv", "voltage mag. [p.u.]","Voltage Magnitude")
+exploit_graph.plot_graph(output_dir, "res_bus", "vm_pu.csv", "voltage mag. [p.u.]","Voltage Magnitude")
 
 
 df_ev = calc_pertes(output_dir)
 
 
-plot_ajout_charge(output_dir, "storage", "p_mw.csv", net.storage)
+exploit_graph.plot_ajout_charge(output_dir, "storage", "p_mw.csv", net.storage)
 
 #load soc
-#plot_graph(output_dir, "storage", "soc_percent.csv","State Of Charge [%]", "Batteries SOC")
+#plot_graph(output_dir, "storage", "in_service.csv","State Of Charge [%]", "Batteries SOC", drop = range(337))
 
-comp_pertes(df_base, df_ev)
+exploit_graph.comp_pertes(df_base, df_ev)
+
+df_bateq = calc_batterie_eq(output_dir, net.storage)
+exploit_graph.plot_df(df_bateq, "Energy [MWh]", "Batteries équivalentes des EV aux noeuds")
 
 #print(ecart_ev)
 #print(conf_opti)
