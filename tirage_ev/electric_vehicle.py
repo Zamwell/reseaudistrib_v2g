@@ -108,9 +108,18 @@ class Personne:
         self.cap_bat = 0.050 #MWh
         self.nrj_km = 0.0002 #MWh par km
         self.journee = []
-        self.puis_rech = 0.01 #MW
+        self.puis_rech = 0.003 #MW
         self.efficiency = 0.9
     
+    
+    def puissance_recharge(self, emplacement):
+        if emplacement == 1:
+            self.puis_rech = 0.007
+        elif emplacement == 0:
+            self.puis_rech = 0.003
+        elif emplacement == 2:
+            self.puis_rech = 0.015
+        
     def tirer_mobilite_jour_semaine(self, dic_param_trajets,profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom):
         if np.random.rand()>0.85:
             typ = profil_mob.sample()
@@ -193,6 +202,7 @@ class Personne:
             except:
                 tsuiv = 95
                 emplac_rech = 0
+            self.puissance_recharge(emplac_rech)
             soc_dep += sum(nrj_jour[tdep:tsuiv+1])/self.cap_bat
             temps_charge += (tdep + 1 - tprec)
             for i in range(tprec,tdep+1):
@@ -200,6 +210,7 @@ class Personne:
             tprec = tsuiv
         nrj_tot = sum(nrj_jour) / self.cap_bat
         j = 0
+        self.puissance_recharge(0)
         for x in pres_jour[:tprec+1]:
             if x == 0:
                 socmin[j] = max(socmin[j], 1.1*nrj_tot - (temps_charge - j)*self.puis_rech*self.efficiency/(self.cap_bat*4))

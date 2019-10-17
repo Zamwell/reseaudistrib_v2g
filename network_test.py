@@ -12,7 +12,7 @@ from pandapower.timeseries.run_time_series import run_timeseries
 import os
 import numpy as np
 from construction_reseau.creation_reseau import creer_reseau, evol_charge, deploiement_EV, deploiement_EV_freqreg
-from construction_reseau.elements_evolutifs import def_charge, def_EV, def_EV_QReg, def_prod, prod_regulee
+from construction_reseau.elements_evolutifs import def_charge, def_EV, def_EV_QReg, def_prod, prod_regulee, def_agg
 import exploitation_res.graphiques as exploit_graph
 from exploitation_res.calculs import calc_pertes, calc_ecart_tension, calc_batterie_eq
 from construction_reseau.frequence_reseau import creer_df_freq
@@ -107,7 +107,7 @@ net_base = net.deepcopy()
 
 deploiement_EV_freqreg(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom, df_frequence)
 
-
+def_agg(net)
 ow = create_output_writer(net, time_steps, output_dir=output_dir)
     
 run_timeseries(net, time_steps, output_writer=ow)
@@ -151,6 +151,8 @@ exploit_graph.comp_pertes(df_base, df_ev)
 
 df_bateq = calc_batterie_eq(output_dir, net.storage)
 exploit_graph.plot_df(df_bateq, "Energy [MWh]", "Batteries équivalentes des EV aux noeuds")
+
+exploit_graph.plot_graph(output_dir, "res_bus", "p_mw.csv","P [MW]", "Bus Loads", drop = [0,1,2,3,4,5] )
 
 #print(ecart_ev)
 #print(conf_opti)

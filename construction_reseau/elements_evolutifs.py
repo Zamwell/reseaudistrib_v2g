@@ -12,30 +12,36 @@ from pandapower.control.controller.storage.ElectricVehicleControl import EVContr
 from pandapower.control.controller.storage.ElectricVehicleQRegControl import EVQRegControl
 from pandapower.control.controller.prod.ProdQRegulatedControl import ProdQRegulatedControl
 from pandapower.control.controller.storage.ElectricVehicleBasicControl import EVBasicControl
+from pandapower.control.controller.agg_control import AggControl
 
 def def_charge(net, index, df_scale, Pmax):
     df = pd.DataFrame()
+    if index == 7:
+        Pmax = 4
     df['charge'] = df_scale['scale'].values * Pmax
     ds = pt.DFData(df)
     ConstControl(net, element="load", variable = 'p_mw', element_index = index, data_source = ds, set_q_from_cosphi = False, profile_name="charge")
     return net
 
+def def_agg(net):
+    AggControl(net, level = 1)
+
 def def_EV(net, bus, df, pers):
     ev = pp.create_storage(net, bus, p_mw = 0, max_e_mwh =pers.cap_bat, name = "ev bus"+str(bus), soc_percent=0.5)
     ds = pt.DFData(df)
-    EVControl(net, gid = ev, data_source=ds, efficiency = pers.efficiency)
+    EVControl(net, gid = ev, data_source=ds, puis_rech= pers.puis_rech, efficiency = pers.efficiency, level = 2)
     return net
 
 def def_EV_base(net, bus, df, pers):
     ev = pp.create_storage(net, bus, p_mw = 0, max_e_mwh = pers.cap_bat, name= "ev bus"+str(bus), soc_percent=0.5)
     ds = pt.DFData(df)
-    EVBasicControl(net, gid = ev, data_source = ds, efficiency = pers.efficiency)
+    EVBasicControl(net, gid = ev, data_source = ds, puis_rech= pers.puis_rech, efficiency = pers.efficiency)
     
 
 def def_EV_QReg(net, bus, df, pers):
     ev = pp.create_storage(net, bus, p_mw = 0, max_e_mwh = pers.cap_bat, name = "ev bus"+str(bus), soc_percent=0.5)
     ds = pt.DFData(df)
-    EVQRegControl(net, gid = ev, data_source=ds, efficiency = pers.efficiency)
+    EVQRegControl(net, gid = ev, data_source=ds,puis_rech= pers.puis_rech, efficiency = pers.efficiency, level = 2)
 
 
 def def_prod(net, index, df_scale, pmax):

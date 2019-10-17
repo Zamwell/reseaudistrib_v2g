@@ -82,6 +82,8 @@ def deploiement_EV(net,dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois
             if  bus == 10:
                 #On met un centre commercial au noeud 10, donc la puissance résidentielle est réduite
                 p_noeud = x[3] - 1.5 
+            elif bus == 11:
+                p_noeud = x[3] - 2.9
             else:
                 p_noeud = x[3]
             nb_ev_max = int(p_noeud / 0.02)
@@ -112,11 +114,13 @@ def deploiement_EV_freqreg(net,dic_param_trajets, profil_mob, dic_nblois, dic_tr
             if  bus == 10:
                 #On met un centre commercial au noeud 10, donc la puissance résidentielle est réduite
                 p_noeud = x[3] - 1.5 
+            elif bus == 11:
+                p_noeud = x[3] - 3
             else:
                 p_noeud = x[3]
             nb_ev_max = int(p_noeud / 0.02)
             for i in range(nb_ev_max):
-                if rand() <= taux_penet:
+                if rand() <= taux_penet: #taux possession des ménages + utilisation journalière voiture
                     per = init_personne(dic_param_trajets, profil_mob, dic_nblois, dic_tranchlois, dic_parklois, dic_dureelois, dic_retourdom)
                     if rand() <= 0.2:
                         def_EV_QReg(net, bus, per.creer_df(), per)
